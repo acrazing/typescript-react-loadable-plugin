@@ -83,6 +83,8 @@ export default {
     Loadable({
       loader: () => import(/* webpackChunkName: 'bar' */ './bar'),
       loading: () => null,
+      modules: ['bar'],
+      webpack: () => [require.resolveWeak('./bar')],
     });
     ```
 
@@ -91,6 +93,8 @@ export default {
 - `getWebpackChunkName`: `(userRequest: string, context: string) => string`, set custom `webpackChunkName`,
   default is the basename of requested module.
 - `identifiers`: `string[]`, the identifiers to treat as `react-loadable`, default is `["Loadable"]`
+- `webpack`: `boolean`, set webpack field or not, default is true
+- `modules`: `boolean`, set modules field or not, default is true
 
 ## LICENSE
 

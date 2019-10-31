@@ -10,6 +10,8 @@ export class State {
   getWebpackChunkName: (request: string, context: string) => string;
   moduleKind: 'userRequest' | 'webpackChunkName' | 'webpackModuleId';
   identifiers: Set<string>;
+  webpack: boolean;
+  modules: boolean;
 
   constructor(options: Partial<ReactLoadableTransformerOptions>) {
     this.getWebpackChunkName =
@@ -26,5 +28,7 @@ export class State {
       });
     this.moduleKind = options.moduleKind || 'userRequest';
     this.identifiers = new Set(options.identifiers || ['Loadable']);
+    this.webpack = options.webpack !== false;
+    this.modules = options.modules !== false;
   }
 }

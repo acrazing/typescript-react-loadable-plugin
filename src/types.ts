@@ -7,4 +7,6 @@ export interface ReactLoadableTransformerOptions {
   getWebpackChunkName: (request: string, context: string) => string;
   moduleKind: 'userRequest' | 'webpackChunkName' | 'webpackModuleId';
   identifiers: string[];
+  webpack: boolean;
+  modules: boolean;
 }
