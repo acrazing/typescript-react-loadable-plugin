@@ -162,7 +162,7 @@ function visitReactLoadable(state: State, node: ts.Node): ts.Node {
   if (!ts.isCallExpression(node) || node.arguments.length !== 1) {
     return node;
   }
-  const config = node.arguments[0];
+  const config = getRealExpression(node.arguments[0]);
   if (!ts.isObjectLiteralExpression(config)) {
     return node;
   }
