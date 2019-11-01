@@ -4,6 +4,7 @@
  */
 
 import * as path from 'path';
+import ts from 'typescript';
 import { ReactLoadableTransformerOptions } from './types';
 
 export class State {
@@ -12,6 +13,9 @@ export class State {
   identifiers: Set<string>;
   webpack: boolean;
   modules: boolean;
+  transformContext!: ts.TransformationContext;
+  sourceFile!: ts.SourceFile;
+  sourceContext!: string;
 
   constructor(options: Partial<ReactLoadableTransformerOptions>) {
     this.getWebpackChunkName =
@@ -30,5 +34,10 @@ export class State {
     this.identifiers = new Set(options.identifiers || ['Loadable']);
     this.webpack = options.webpack !== false;
     this.modules = options.modules !== false;
+  }
+
+  setSourceFile(source: ts.SourceFile) {
+    this.sourceFile = source;
+    this.sourceContext = path.dirname(source.fileName);
   }
 }
