@@ -5,31 +5,6 @@
  * TODO: add unit test
  */
 
-import ts from 'typescript';
-import { createReactLoadableTransformer } from './createReactLoadableTransformer';
-
 describe('createReactLoadableTransformer', () => {
-  it('should transform as expected', () => {
-    const result = ts.transpileModule(
-      `
-      Loadable.Map({
-        loader: {
-          Foo: () => [import(
-          './Foo'
-        ), import('./Bar')]
-        },
-      })
-      `,
-      {
-        transformers: {
-          before: [
-            createReactLoadableTransformer(void 0, {
-              moduleKind: 'webpackModuleId',
-            }),
-          ],
-        },
-      },
-    );
-    console.log(result.outputText);
-  });
+  it('should transform as expected', () => {});
 });

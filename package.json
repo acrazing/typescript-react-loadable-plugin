@@ -1,6 +1,6 @@
 {
   "name": "typescript-react-loadable-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A react-loadable plugin to add modules & webpack for typescript",
   "author": "acrazing <joking.young@gmail.com>",
   "main": "lib/index.js",
@@ -29,7 +29,10 @@
     "clean": "rm -rf cjs esm lib build temp .cache",
     "prepublishOnly": "run-s test build",
     "start": "npm run clean && npm run build:esm -- --watch",
-    "test": "jest"
+    "test": "jest",
+    "compare:babel": "babel -o ./compare/output_babel.js ./compare/source.tsx",
+    "compare:self": "ttsc -p tsconfig.self.json && mv compare/source.js compare/output_typescript.js && rm -rf compare/input/*.js",
+    "compare": "run-p compare:babel compare:self && prettier --write ./compare/output_*"
   },
   "repository": {
     "type": "git",
@@ -37,14 +40,23 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-react": "^7.6.3",
+    "@babel/preset-typescript": "^7.6.0",
     "@types/jest": "^24.0.19",
     "@types/node": "^12.12.3",
+    "@types/react": "^16.9.11",
+    "@types/react-loadable": "^5.5.2",
     "husky": "^3.0.9",
     "jest": "^24.9.0",
     "lint-staged": "^9.4.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.18.2",
-    "ts-jest": "^24.1.0"
+    "react-loadable": "^5.5.0",
+    "ts-jest": "^24.1.0",
+    "ttypescript": "^1.5.7"
   },
   "dependencies": {
     "tslib": "^1.10.0",
@@ -102,5 +114,31 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "chrome": "70"
+          },
+          "modules": false
+        }
+      ],
+      [
+        "@babel/preset-typescript",
+        {
+          "isTSX": true,
+          "allExtensions": true
+        }
+      ],
+      [
+        "@babel/preset-react"
+      ]
+    ],
+    "plugins": [
+      "react-loadable/babel"
+    ]
   }
 }

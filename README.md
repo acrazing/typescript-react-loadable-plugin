@@ -5,23 +5,25 @@ A react-loadable plugin to add modules & webpack for typescript
 This transformer helps you to transform code like:
 
 ```typescript jsx
+import React from 'react';
 import Loadable from 'react-loadable';
 
-const LazyFoo = Loadable({
-  loader: () => import('./Foo'),
+export const LazyFoo = Loadable({
+  loader: () => import('./input/Foo'),
+  loading: () => <span>Loading...</span>,
 });
 ```
 
 to the following format:
 
 ```typescript jsx
+import React from 'react';
 import Loadable from 'react-loadable';
-
-const LazyFoo = Loadable({
-  loader: () => import('./Foo'),
-
-  modules: ['./Foo'],
-  webpack: () => [require.resolveWeak('./Foo')],
+export const LazyFoo = Loadable({
+  loading: () => React.createElement('span', null, 'Loading...'),
+  loader: () => import('./input/Foo'),
+  modules: ['./input/Foo'],
+  webpack: () => [require.resolveWeak('./input/Foo')],
 });
 ```
 
@@ -129,7 +131,10 @@ export default {
 **Supported import expressions**:
 
 1. ES dynamic import: `import(...)`
-2. Webpack ensure: `require.ensure([...], callback)`
+
+**Unsupported import expressions**:
+
+1. Webpack ensure: `require.ensure([...], [callback], [chunkName])`
 
 ## LICENSE
 
