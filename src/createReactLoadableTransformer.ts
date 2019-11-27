@@ -6,7 +6,10 @@
 import ts from 'typescript';
 import vm from 'vm';
 import { State } from './State';
-import { ReactLoadableTransformerOptions } from './types';
+import {
+  ReactLoadableTransformerOptions,
+  WebpackCommentOptions,
+} from './types';
 
 const webpackCommentRegExp = new RegExp(/(^|\W)webpack[A-Z]+[A-Za-z]+:/);
 
@@ -33,10 +36,10 @@ function parseLoader(
       const arg0 = node.arguments[0];
       if (ts.isStringLiteral(arg0)) {
         webpackIds.add(arg0.text);
-        if (state.moduleKind === 'webpackChunkName') {
+        let chunkName = '';
+        if (state.webpackChunkName) {
           const commentRanges =
             ts.getLeadingCommentRanges(state.sourceFile.text, arg0.pos) || [];
-          let chunkName: string | undefined;
           for (const range of commentRanges) {
             let comment = state.sourceFile.text.substring(range.pos, range.end);
             if (range.kind === ts.SyntaxKind.SingleLineCommentTrivia) {
@@ -46,7 +49,9 @@ function parseLoader(
             }
             if (webpackCommentRegExp.test(comment)) {
               try {
-                const commentValue = vm.runInNewContext(`({ ${comment} })`);
+                const commentValue: WebpackCommentOptions = vm.runInNewContext(
+                  `({ ${comment} })`,
+                );
                 if (typeof commentValue.webpackChunkName === 'string') {
                   chunkName = commentValue.webpackChunkName;
                   break;
@@ -70,6 +75,8 @@ function parseLoader(
               false,
             );
           }
+        }
+        if (state.moduleKind === 'webpackChunkName') {
           moduleIds.add(chunkName);
         } else {
           moduleIds.add(arg0.text);
@@ -88,7 +95,8 @@ function transformReactLoadable(
   let loader: ts.ObjectLiteralElementLike | undefined = void 0;
   let modules: ts.ObjectLiteralElementLike | undefined = void 0;
   let webpack: ts.ObjectLiteralElementLike | undefined = void 0;
-  const otherProperties = config.properties.filter((node) => {
+  const properties = config.properties.slice();
+  properties.forEach((node) => {
     if (node.name) {
       const name = ts.isIdentifier(node.name)
         ? node.name.escapedText
@@ -105,12 +113,8 @@ function transformReactLoadable(
         case 'webpack':
           webpack = node;
           break;
-        default:
-          return true;
       }
-      return false;
     }
-    return true;
   });
   if (!loader) {
     return config;
@@ -118,10 +122,9 @@ function transformReactLoadable(
   if ((modules || !state.modules) && (webpack || !state.webpack)) {
     return config;
   }
-  const [newLoader, moduleIds, webpackIds] = parseLoader(state, loader);
-  otherProperties.push(newLoader);
+  const [, moduleIds, webpackIds] = parseLoader(state, loader);
   if (!modules && state.modules) {
-    otherProperties.push(
+    properties.push(
       ts.createPropertyAssignment(
         'modules',
         ts.createArrayLiteral(
@@ -133,7 +136,7 @@ function transformReactLoadable(
     );
   }
   if (!webpack && state.webpack) {
-    otherProperties.push(
+    properties.push(
       ts.createPropertyAssignment(
         'webpack',
         ts.createArrowFunction(
@@ -147,7 +150,7 @@ function transformReactLoadable(
       ),
     );
   }
-  return ts.createObjectLiteral(otherProperties, true);
+  return ts.createObjectLiteral(properties, true);
 }
 
 export function getRealExpression(node: ts.Node): ts.Node {

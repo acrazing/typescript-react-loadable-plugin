@@ -9,4 +9,11 @@ export interface ReactLoadableTransformerOptions {
   identifiers: string[];
   webpack: boolean;
   modules: boolean;
+  webpackChunkName: boolean;
+}
+
+export interface WebpackCommentOptions {
+  webpackChunkName?: string;
+  webpackPreload?: boolean;
+  webpackPrefetch?: boolean;
 }

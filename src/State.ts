@@ -9,6 +9,7 @@ import { ReactLoadableTransformerOptions } from './types';
 
 export class State {
   getWebpackChunkName: (request: string, context: string) => string;
+  webpackChunkName: boolean;
   moduleKind: 'userRequest' | 'webpackChunkName' | 'webpackModuleId';
   identifiers: Set<string>;
   webpack: boolean;
@@ -34,6 +35,9 @@ export class State {
     this.identifiers = new Set(options.identifiers || ['Loadable']);
     this.webpack = options.webpack !== false;
     this.modules = options.modules !== false;
+    this.webpackChunkName =
+      options.webpackChunkName !== false ||
+      this.moduleKind === 'webpackChunkName';
   }
 
   setSourceFile(source: ts.SourceFile) {
